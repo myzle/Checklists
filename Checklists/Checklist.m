@@ -14,7 +14,7 @@
 
 - (id)init {
     if ((self = [super init])) {
-        //self.items = [];
+        self.items = [ChecklistItem allObjects];
     }
     return self;
 }

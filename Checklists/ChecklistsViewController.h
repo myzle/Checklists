@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import "ItemDetailViewController.h"
-#import <Realm/Realm.h>
 
 @class Checklist;
 

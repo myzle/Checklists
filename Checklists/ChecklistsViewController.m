@@ -20,7 +20,7 @@
     [super viewDidLoad];
     
     self.title = self.checklist.name;
-    //[self.tableView reloadData];
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -48,18 +48,13 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    //UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     
     ChecklistItem *item = self.checklist.items[indexPath.row];
-    
-    RLMRealm *realm = RLMRealm.defaultRealm;
-    [realm beginWriteTransaction];
     [item toggleChecked];
-    [realm commitWriteTransaction];
     
+    [self configureCheckmarkForCell:cell withChecklistItem:item];
     
-    //[self configureCheckmarkForCell:cell withChecklistItem:item];
-    [self.tableView reloadData];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
@@ -71,7 +66,6 @@
         [realm deleteObject:self.checklist.items[indexPath.row]];
         [realm commitWriteTransaction];
     }
-    [self.tableView reloadData];
 }
 
 #pragma mark - helpers
@@ -118,27 +112,26 @@
 }
 
 - (void)itemDetailViewController:(ItemDetailViewController *)controller didFinishAddingItem:(ChecklistItem *)item {
-//    NSInteger newRowIndex = [self.checklist.items count];
+    NSInteger newRowIndex = [self.checklist.items count];
     RLMRealm *realm = RLMRealm.defaultRealm;
     [realm beginWriteTransaction];
-    //[ChecklistItem createInRealm:realm withValue:@[item.text, @FALSE]];
-    [self.checklist.items addObject:item];
+    [ChecklistItem createInRealm:realm withValue:@[item.text]];
     [realm commitWriteTransaction];
     
-//    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:newRowIndex inSection:0];
-//    NSArray *indexPaths = @[indexPath];
-//    [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
-    [self.tableView reloadData];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:newRowIndex inSection:0];
+    NSArray *indexPaths = @[indexPath];
+    [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)itemDetailViewController:(ItemDetailViewController *)controller didFinishEditingItem:(ChecklistItem *)item {
-//    NSInteger index = [self.checklist.items indexOfObject:item];
-//    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
-//    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-//    
-//    [self configureTextForCell:cell withChecklistItem:item];
-    [self.tableView reloadData];
+    NSInteger index = [self.checklist.items indexOfObject:item];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    
+    [self configureTextForCell:cell withChecklistItem:item];
+    
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

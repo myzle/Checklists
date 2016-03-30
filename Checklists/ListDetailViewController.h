@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Realm/Realm.h>
 
 @class ListDetailViewController;
 @class Checklist;
