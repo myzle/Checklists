@@ -44,7 +44,11 @@
         
         [self.delegate itemDetailViewController:self didFinishAddingItem:item];
     } else {
+        RLMRealm *realm = RLMRealm.defaultRealm;
+        [realm beginWriteTransaction];
         self.itemToEdit.text = self.textField.text;
+        [realm commitWriteTransaction];
+        
         [self.delegate itemDetailViewController:self didFinishEditingItem:self.itemToEdit];
     }
     

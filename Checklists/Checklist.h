@@ -8,11 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
+#import "ChecklistItem.h"
 
 @interface Checklist : RLMObject
 
 @property (nonatomic, copy) NSString *name;
-@property (nonatomic, strong) RLMResults *items;
+@property RLMArray<ChecklistItem> *items;
 
 - (int)countUncheckedItems;
 

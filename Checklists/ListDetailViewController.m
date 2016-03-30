@@ -49,7 +49,11 @@
         
         [self.delegate listDetailViewController:self didFinishAddingChecklist:checklist];
     } else {
+        RLMRealm *realm = RLMRealm.defaultRealm;
+        [realm beginWriteTransaction];
         self.checklistToEdit.name = self.textField.text;
+        [realm commitWriteTransaction];
+        
         [self.delegate listDetailViewController:self didFinishEditingChecklist:self.checklistToEdit];
     }
 }

@@ -17,3 +17,4 @@
 - (void)toggleChecked;
 
 @end
+RLM_ARRAY_TYPE(ChecklistItem)

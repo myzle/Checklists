@@ -9,20 +9,23 @@
 #import "AllListsViewController.h"
 #import "Checklist.h"
 #import "ChecklistsViewController.h"
+#import <Realm/Realm.h>
 
 @interface AllListsViewController ()
+
+@property (nonatomic, strong) RLMResults *lists;
 
 @end
 
 @implementation AllListsViewController
 {
-    NSMutableArray *_lists;
+    //NSMutableArray *_lists;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _lists = [[NSMutableArray alloc] initWithCapacity:20];
+    self.lists = [Checklist allObjects];
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -45,7 +48,7 @@
 #pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [_lists count];
+    return [self.lists count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -57,7 +60,7 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
     }
     
-    Checklist *checklist = _lists[indexPath.row];
+    Checklist *checklist = self.lists[indexPath.row];
     
     cell.textLabel.text = checklist.name;
     cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
@@ -77,7 +80,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    Checklist *checklist = _lists[indexPath.row];
+    Checklist *checklist = self.lists[indexPath.row];
     [self performSegueWithIdentifier:@"ShowChecklist" sender:checklist];
 }
 
@@ -102,31 +105,47 @@
 }
 
 - (void)listDetailViewController:(ListDetailViewController *)controller didFinishAddingChecklist:(Checklist *)checklist {
-    NSInteger newRowIndex = [_lists count];
-    [_lists addObject:checklist];
-    
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:newRowIndex inSection:0];
-    NSArray *indexPaths = @[indexPath];
-    [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
-    
+//    NSInteger newRowIndex = [_lists count];
+//    [_lists addObject:checklist];
+//    
+//    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:newRowIndex inSection:0];
+//    NSArray *indexPaths = @[indexPath];
+//    [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    RLMRealm *realm = RLMRealm.defaultRealm;
+    [realm beginWriteTransaction];
+    [Checklist createInRealm:realm withValue:@[checklist.name]];
+    [realm commitWriteTransaction];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)listDetailViewController:(ListDetailViewController *)controller didFinishEditingChecklist:(Checklist *)checklist {
-    NSInteger index = [_lists indexOfObject:checklist];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
-    
-    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-    cell.textLabel.text = checklist.name;
-    
+//    NSInteger index = [_lists indexOfObject:checklist];
+//    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+//    
+//    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+//    cell.textLabel.text = checklist.name;
+//    NSInteger index = [self.lists indexOfObject:checklist];
+//    Checklist *list = [self.lists objectAtIndex:index];
+//    RLMRealm *realm = RLMRealm.defaultRealm;
+//    [realm beginWriteTransaction];
+//    list.name = checklist.name;
+//    [realm commitWriteTransaction];
+    [self.tableView reloadData];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    [_lists removeObjectAtIndex:indexPath.row];
-    
-    NSArray *indexPaths = @[indexPath];
-    [tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+//    [_lists removeObjectAtIndex:indexPath.row];
+//    
+//    NSArray *indexPaths = @[indexPath];
+    //[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        RLMRealm *realm = RLMRealm.defaultRealm;
+        [realm beginWriteTransaction];
+        [realm deleteObject:self.lists[indexPath.row]];
+        [realm commitWriteTransaction];
+    }
+    [self.tableView reloadData];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
@@ -136,7 +155,7 @@
     
     controller.delegate = self;
     
-    Checklist *checklist = _lists[indexPath.row];
+    Checklist *checklist = self.lists[indexPath.row];
     controller.checklistToEdit = checklist;
     
     [self presentViewController:navigationController animated:YES completion:nil];
